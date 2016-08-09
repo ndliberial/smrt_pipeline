@@ -1,0 +1,10 @@
+To run the pipeline on a small dataset for the purpose of evaluation, execute the perl script mini_pipeline.pl.
+To run the pipeline on the complete data set, execute the perl script full_pipeline.pl.
+
+To set up the working environment for this analysis, all required versions of third-party utilities must be fully installed and configured to run within the user path. All hardware requirements must be fully met as well.
+
+Begin by unzipping the file bioinformatics.zip to your preferred drive. While in the top most directory, open terminal to run either the mini or full pipleline.pl scripts.
+For the purpose of evaluation, a custom reference (chr1_custom.fa) file has been uploaded. However, it would be ideal to have the full DNA sequence of each chromosome as reference ready for analysis.
+
+Note: The perl scripts terminates after assembly completion. Further analysis can be performed by the user with the aid of other recommended web based gui softwares.
+ 
