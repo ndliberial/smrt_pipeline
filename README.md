@@ -1,1 +1,0 @@
-# smrt_pipeline
