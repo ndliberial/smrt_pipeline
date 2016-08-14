@@ -1,0 +1,47 @@
+This is a detailed instruction set on how to set up and run the analysis and assembly pipeline
+
+Minimum system requirements (see methods in corresponding paper - Ogeh et al., 2016)
+
+Note: All third party tools and hardware requirement should be fully satisfied before any test is performed. Ensure all installations are executable from user's path. Also, it is a requirement to install the non-standard perl module Text::Levenshtein via cpan as the pipeline depends on it.
+
+
+Steps:
+
+1. Download and uncompress the folder smrt_pipeline.zip to any local directory of your choice. Directory levels in the uncompressed folder must stay the same. The sub directories listed, serve the following;
+	datasets: stores read id extracts and alignment files as fasta and SAM/BAM formats respectively
+	raw_seq: stores downloaded chm1 sequence reads from PacBio's data store
+	last: stores pairwise alignment and score generation profiles
+	flank: stores flanking reads to the ROI
+	mini_pipeline.pl: perl script that runs the pipeline on a smaller sample (recommended for test purposes)
+	full_pipeline.pl: perl script that runs the pipeline on the complete dataset (not recommended for evaluation purposes)
+	chm1_p5c3_subread_path.txt: text file containing full download links for dataset. This should be used when executing full_pipeline.pl
+	subread_test.txt: text file containing sample download links for mini_pipeline.pl
+	pac.spec: configuration file used by celera assembler in the assembly process
+	ms1.bed: text file containing coordinates for ROI (e.g. MS1 ) in bed format
+	ms1_repeat_types: holds known repeat types of MS1 (Gray and Jeffreys, 1991)
+
+2. Open a terminal window within the top smrt_pipeline directory
+	To run the pipeline on a small dataset for the purpose of evaluation, execute the perl script mini_pipeline.pl by typing the command "perl mini_pipeline.pl" and pressing the Enter key
+	To run the pipeline on the complete data set, execute the perl script full_pipeline.pl by typing the command "perl full_pipeline.pl" and pressing the Enter key
+
+3. On successful completion of assembly, the file best_contigs.fasta containing the best two (2) reconstructions (where possible) of the ROI is generated and stored in the working directory
+
+4. Further annotation analysis on the reconstructed ROI can be done by submitting the assembly(ies) to Tandem Repeat Finder (TRF). TRF identifies and gives further details on the repeat. For a graphical view on the reconstruction, use BLAT from UCSC Genemo Browser
+
+5. Taking each individual repeat unit identified by TRF as a fasta sequence, generate a multiple fasta sequence file for all repeat units within the ROI
+
+6. To get the structure of the reconstructed allele, re-run the pipeline and select task 0 to determine allele structure 
+
+
+Code structure
+The code for this pipeline comprises ten (10) major functions that perform the following:
+	&get_raw_reads: This procedure handles the downloading of all chm1 sequence reads from PacBio's data repository. To do this, the file (either subread_test.txt or chm1_p5c3_subread_path.txt) containing download links is passed to the function as an argument.
+	&custom_extract: This procedure downloads the reference sequence (from ensemble ftp download page) from which it also extracts the ROI as custom reference. Here, the user is requested to supply the chromosome id containing the ROI.
+	&mask_ref: This procedures performs reference masking using bedtools. Again, the file containing coordinates for the ROI in a bed format is passed as argument to the function when executed.
+	&alignment: This procedure as the name goes performs mapping of chm1 reads with the masked reference. The mapping is donw using BWA-MEM.
+	&pairwise_alignment: To perform alignment between flanking reads and custom reference, this function is triggered. The alignment is done using LAST v475.
+	&filter_reads: The reads with alignment to the ROI are profiled into a score distribution and corresponding reads are extracted from the collection of flanking reads into three (3) groups.
+	&assembly: Depending on the user, assembly can be performed on any group of flanking reads to see the impact related/nonrelated sequences can have on assemblies.
+	&allele_struct_determination: This procedure handles the structural determination of the reconstructed allele. To do this, we require a multiple sequence file containing all identified repeat units from TRF and another text file containing the standard repeat types of the ROI. Both files are passed as argument to the function when triggered.
+	&finish: This procedure terminates the pipeline process.
+ 
